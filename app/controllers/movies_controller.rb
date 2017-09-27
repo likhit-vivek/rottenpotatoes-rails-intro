@@ -11,7 +11,17 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    $titleParams = params[:title]
+    $dateParams = params[:date]
+    $query = "SELECT * FROM movies"
+    $titleUrl = "/movies?title='title'"
+    $dateUrl = "/movies?date='release_date'"
+    if $titleParams
+      $query += " ORDER BY title"
+    elsif $dateParams
+      $query += " ORDER BY release_date"
+    end
+    @movies = Movie.find_by_sql $query
   end
 
   def new
