@@ -19,8 +19,6 @@ class MoviesController < ApplicationController
     if $ratingParams
       $ratings = $ratingParams.keys
       $query += " WHERE rating IN (" + $ratings.map{|i| "'"+i+"'" }.join(",") + ")"
-    else
-      $ratings = []
     end
     $titleUrl = "/movies?title=title"
     $dateUrl = "/movies?date=release_date"
