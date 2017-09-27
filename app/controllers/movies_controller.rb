@@ -13,15 +13,24 @@ class MoviesController < ApplicationController
   def index
     $titleParams = params[:title]
     $dateParams = params[:date]
+    $ratingParams = params[:ratings]
+    $ratings = ['G', 'R', 'PG-13', 'PG']
     $query = "SELECT * FROM movies"
-    $titleUrl = "/movies?title='title'"
-    $dateUrl = "/movies?date='release_date'"
+    if $ratingParams
+      $ratings = $ratingParams.keys
+      $query += " WHERE rating IN (" + $ratings.map{|i| "'"+i+"'" }.join(",") + ")"
+    else
+      $ratings = []
+    end
+    $titleUrl = "/movies?title=title"
+    $dateUrl = "/movies?date=release_date"
     if $titleParams
       $query += " ORDER BY title"
     elsif $dateParams
       $query += " ORDER BY release_date"
     end
     @movies = Movie.find_by_sql $query
+    @all_ratings = Movie.select(:rating).distinct
   end
 
   def new
