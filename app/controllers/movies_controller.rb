@@ -15,12 +15,15 @@ class MoviesController < ApplicationController
     $ratings = []
     $ratingParams = params[:ratings] ? params[:ratings] : session[:ratings]
 
+    $url = "/movies?utf8=\u2714"
     $query = "SELECT * FROM movies"
 
     if $ratingParams
       session[:ratings] = $ratingParams
       $ratings = $ratingParams.keys
       $query += " WHERE rating IN (" + $ratings.map{|i| "'"+i+"'" }.join(",") + ")"
+      $ratings.each{|x| $url += "&ratings[" + x + "]=1"}
+      $url += "&commit=Refresh"
     end
 
     if $orderParams == "title"
@@ -28,11 +31,13 @@ class MoviesController < ApplicationController
       $sortByTitle = true
       $sortByDate = false
       session[:order] = $orderParams
+      $url += '&order=title'
     elsif $orderParams == "date"
       $query += " ORDER BY release_date"
       $sortByTitle = false
       $sortByDate = true
       session[:order] = $orderParams
+      $url += '&order=date'
     else
       $sortByTitle = false
       $sortByDate = false
@@ -40,16 +45,6 @@ class MoviesController < ApplicationController
 
     $titleUrl = "/movies?order=title"
     $dateUrl = "/movies?order=date"
-
-    # if $titleParams
-    #   $query += " ORDER BY title"
-    #   session[:title] = "title"
-    #   session[:date] = ""
-    # elsif $dateParams
-    #   $query += " ORDER BY release_date"
-    #   session[:title] = ""
-    #   session[:date] = "date"
-    # end
 
     @movies = Movie.find_by_sql $query
     @all_ratings = Movie.select(:rating).distinct
