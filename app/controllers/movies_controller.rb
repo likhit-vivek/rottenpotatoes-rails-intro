@@ -11,22 +11,46 @@ class MoviesController < ApplicationController
   end
 
   def index
-    $titleParams = params[:title]
-    $dateParams = params[:date]
-    $ratingParams = params[:ratings]
-    $ratings = ['G', 'R', 'PG-13', 'PG']
+    $orderParams = params[:order] ? params[:order] : session[:order]
+    $ratings = []
+    $ratingParams = params[:ratings] ? params[:ratings] : session[:ratings]
+
     $query = "SELECT * FROM movies"
+
     if $ratingParams
+      session[:ratings] = $ratingParams
       $ratings = $ratingParams.keys
       $query += " WHERE rating IN (" + $ratings.map{|i| "'"+i+"'" }.join(",") + ")"
     end
-    $titleUrl = "/movies?title=title"
-    $dateUrl = "/movies?date=release_date"
-    if $titleParams
+
+    if $orderParams == "title"
       $query += " ORDER BY title"
-    elsif $dateParams
+      $sortByTitle = true
+      $sortByDate = false
+      session[:order] = $orderParams
+    elsif $orderParams == "date"
       $query += " ORDER BY release_date"
+      $sortByTitle = false
+      $sortByDate = true
+      session[:order] = $orderParams
+    else
+      $sortByTitle = false
+      $sortByDate = false
     end
+
+    $titleUrl = "/movies?order=title"
+    $dateUrl = "/movies?order=date"
+
+    # if $titleParams
+    #   $query += " ORDER BY title"
+    #   session[:title] = "title"
+    #   session[:date] = ""
+    # elsif $dateParams
+    #   $query += " ORDER BY release_date"
+    #   session[:title] = ""
+    #   session[:date] = "date"
+    # end
+
     @movies = Movie.find_by_sql $query
     @all_ratings = Movie.select(:rating).distinct
   end
