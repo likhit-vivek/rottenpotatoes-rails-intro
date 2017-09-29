@@ -11,11 +11,37 @@ class MoviesController < ApplicationController
   end
 
   def index
-    $orderParams = params[:order] ? params[:order] : session[:order]
+    $redirectPage = false
+    if params[:order]
+      $orderParams = params[:order]
+      $redirectPage = false
+    elsif session[:order]
+      $orderParams = session[:order]
+      $redirectPage = true
+    else
+      $redirectPage = false
+    end
+    # $orderParams = params[:order] ? params[:order] : session[:order]
+    if params[:ratings]
+      $ratingParams = params[:ratings]
+      $redirectPage = false
+      if params[:commit] == "Refresh"
+        $redirectPage = true
+      end
+    elsif session[:ratings]
+      $ratingParams = session[:ratings]
+      $redirectPage = true
+    else
+      $redirectPage = false
+    end
+    if $redirectPage
+      flash.keep
+      redirect_to movies_path :order => $orderParams, :ratings => $ratingParams
+    end
     $ratings = []
-    $ratingParams = params[:ratings] ? params[:ratings] : session[:ratings]
+    # $ratingParams = params[:ratings] ? params[:ratings] : session[:ratings]
 
-    $url = "/movies?utf8=\u2714"
+    $url = "/movies?utf8=true"
     $query = "SELECT * FROM movies"
 
     if $ratingParams
