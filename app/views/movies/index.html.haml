@@ -8,8 +8,6 @@
     = check_box_tag "ratings[#{rating.rating}]", 1, $ratings==[] || $ratings.index(rating.rating)
   = submit_tag 'Refresh', :id => 'ratings_submit'
 
-#{$url}
-
 %table#movies
   %thead
     %tr
